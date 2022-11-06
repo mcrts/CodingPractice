@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "aoc2021"
+version = "0.1.0"
+description = ""
+authors = ["Martin Courtois <martin.courtois@protonmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pydantic = "^1.10.2"
+numpy = "^1.23.4"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+day = 'aoc2021.main:run'
+boiler = 'aoc2021.main:boiler'
