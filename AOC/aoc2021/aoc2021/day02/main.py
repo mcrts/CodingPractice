@@ -8,11 +8,9 @@ from typing import Dict, Iterable, Tuple, Self
 from pydantic import BaseModel, parse_obj_as
 from enum import Enum
 
-from aoc2021.utils import stream_from_text
+from aoc2021.utils import Solver, input_path
 
-DIR_PATH = os.path.dirname(__file__)
-INPATH = Path(DIR_PATH) / "input.txt"
-DAY = "02"
+INPATH = input_path(2)
 
 
 class MotionEnm(str, Enum):
@@ -85,25 +83,27 @@ def sum_by_motion(instream: Iterable[SubmarineCommand]) -> ResultAggregate:
     return result
 
 
-def solve_part1(instream: Iterable[str]) -> int:
-    stream = parse_input(instream)
-    aggregate = sum_by_motion(stream)
+def solve_part1(instream: Iterable[SubmarineCommand]) -> int:
+    aggregate = sum_by_motion(instream)
     return (aggregate.down - aggregate.up) * aggregate.forward
 
 
-def solve_part2(instream: Iterable[str]) -> int:
-    stream = parse_input(instream)
-    sub = SubmarineState().apply_many(stream)
+def solve_part2(instream: Iterable[SubmarineCommand]) -> int:
+    sub = SubmarineState().apply_many(instream)
     return sub.horizontal * sub.depth
 
 
-def main():
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part01 : {solve_part1(stream)}",
-    )
+solver01 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part1,  # type: ignore
+)
 
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part02 : {solve_part2(stream)}",
-    )
+solver02 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part2,  # type: ignore
+)
+
+
+def main():
+    print("Day 01 - Part01 :", solver01.solve(INPATH))
+    print("Day 01 - Part02 :", solver02.solve(INPATH))

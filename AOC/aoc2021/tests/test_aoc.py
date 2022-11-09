@@ -23,6 +23,20 @@ def test_day01_part02():
     assert m.solver02.solve(path) == 5
 
 
+def test_day02_part01():
+    day = 2
+    m = AOC_MODULES[day]
+    path = get_input_path(day)
+    assert m.solver01.solve(path) == 150
+
+
+def test_day02_part02():
+    day = 2
+    m = AOC_MODULES[day]
+    path = get_input_path(day)
+    assert m.solver02.solve(path) == 900
+
+
 def test_day06_part01():
     day = 6
     m = AOC_MODULES[day]
