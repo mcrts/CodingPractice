@@ -1,6 +1,4 @@
-import os
-from pathlib import Path
-from typing import Iterable, Iterator, Tuple
+from typing import Iterable, Iterator, Sequence
 import itertools as it
 
 from aoc2021.utils import Solver, input_path, T
@@ -8,7 +6,7 @@ from aoc2021.utils import Solver, input_path, T
 INPATH = input_path(1)
 
 
-def nwise(stream: Iterable[T], n) -> Iterator[Tuple[T]]:
+def nwise(stream: Iterable[T], n) -> Iterator[Sequence[T]]:
     streams = it.tee(stream, n)
     s = it.starmap(lambda i, s: it.islice(s, i, None), enumerate(streams))
     return zip(*s)

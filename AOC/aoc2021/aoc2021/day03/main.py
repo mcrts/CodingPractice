@@ -3,16 +3,14 @@ import functools
 import os
 import itertools as it
 from pathlib import Path
-from typing import Callable, Iterable, Tuple
+from typing import Callable, Iterable, Sequence, Tuple
 
-from aoc2021.utils import stream_from_text, T
+from aoc2021.utils import T, input_path, Solver
 
-DIR_PATH = os.path.dirname(__file__)
-INPATH = Path(DIR_PATH) / "input.txt"
-DAY = "03"
+INPATH = input_path(3)
 
 
-def most_common_bits(instream: Iterable[Tuple[T]]) -> Tuple[T]:
+def most_common_bits(instream: Iterable[Sequence[T]]) -> Sequence[T]:
     stream = map(lambda s: tuple(map(lambda x: Counter([x]), s)), instream)
     res = functools.reduce(
         lambda x, y: tuple(i[0] + i[1] for i in zip(x, y)),
@@ -39,13 +37,13 @@ def co2_criteria(instream: Iterable[str]) -> str:
 
 
 def compute_bit_criteria(
-    instream: Iterable[Tuple[str]], at: int, criteria: Callable
+    instream: Iterable[Sequence[str]], at: int, criteria: Callable
 ) -> str:
     stream = map(lambda t: t[at], instream)
     return criteria(stream)
 
 
-def oxygen_generator_rating(instream: Iterable[Tuple[str]]) -> int:
+def oxygen_generator_rating(instream: Iterable[Sequence[str]]) -> int:
     stream, _instream = it.tee(instream, 2)
     bits = ""
     for i in range(12):
@@ -57,7 +55,7 @@ def oxygen_generator_rating(instream: Iterable[Tuple[str]]) -> int:
     return rating
 
 
-def co2_scrubber_rating(instream: Iterable[Tuple[str]]) -> int:
+def co2_scrubber_rating(instream: Iterable[Sequence[str]]) -> int:
     stream, _instream = it.tee(instream, 2)
     bits = ""
     for i in range(12):
@@ -68,30 +66,36 @@ def co2_scrubber_rating(instream: Iterable[Tuple[str]]) -> int:
     return rating
 
 
-def solve_part1(instream: Iterable[str]) -> int:
-    stream = map(lambda s: tuple(s), instream)
+def solve_part1(instream: Iterable[Sequence[str]]) -> int:
     base = int("0b111111111111", base=0)
-    gamma_bits = "".join(most_common_bits(stream))
+    gamma_bits = "".join(most_common_bits(instream))
     gamma_rate = int(gamma_bits, 2)
     epsilon_rate = base ^ gamma_rate
     return gamma_rate * epsilon_rate
 
 
-def solve_part2(instream: Iterable[str]) -> int:
-    stream = map(lambda s: tuple(s), instream)
-    s1, s2 = it.tee(stream, 2)
+def solve_part2(instream: Iterable[Sequence[str]]) -> int:
+    s1, s2 = it.tee(instream, 2)
     r1 = oxygen_generator_rating(s1)
     r2 = co2_scrubber_rating(s2)
     return r1 * r2
 
 
-def main():
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part01 : {solve_part1(stream)}",
-    )
+def parse_input(instream: Iterable[str]) -> Iterable[Sequence[str]]:
+    return map(lambda s: tuple(s), instream)
 
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part02 : {solve_part2(stream)}",
-    )
+
+solver01 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part1,  # type: ignore
+)
+
+solver02 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part2,  # type: ignore
+)
+
+
+def main():
+    print("Day 03 - Part01 :", solver01.solve(INPATH))
+    print("Day 03 - Part02 :", solver02.solve(INPATH))

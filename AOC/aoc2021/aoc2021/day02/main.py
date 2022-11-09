@@ -1,9 +1,6 @@
-from collections import Counter, namedtuple
-from functools import reduce
+from collections import namedtuple
 import itertools as it
-import os
-from pathlib import Path
-from typing import Dict, Iterable, Tuple, Self
+from typing import Iterable, Self
 
 from pydantic import BaseModel, parse_obj_as
 from enum import Enum
@@ -105,5 +102,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 01 - Part01 :", solver01.solve(INPATH))
-    print("Day 01 - Part02 :", solver02.solve(INPATH))
+    print("Day 02 - Part01 :", solver01.solve(INPATH))
+    print("Day 02 - Part02 :", solver02.solve(INPATH))
