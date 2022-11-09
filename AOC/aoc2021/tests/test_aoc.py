@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
-from aoc2021.main import AOC_MODULES
+
+import pytest
+from aoc2021.main import AOC_MODULES, DAYS_IMPLEMENTED
 
 DIR_PATH = os.path.dirname(__file__)
 
@@ -9,57 +11,31 @@ def get_input_path(day: int) -> Path:
     return Path(DIR_PATH) / "inputs" / f"day{day:02d}.txt"
 
 
-def test_day01_part01():
-    day = 1
+SOLUTIONS = {
+    (1, 1): 7,
+    (1, 2): 5,
+    (2, 1): 150,
+    (2, 2): 900,
+    (3, 1): 198,
+    (3, 2): 230,
+    (4, 1): 4512,
+    (4, 2): 1924,
+    (5, 1): 5,
+    (5, 2): 12,
+    (6, 1): 5934,
+    (6, 2): 26984457539,
+}
+
+
+@pytest.mark.parametrize("part", (1, 2))
+@pytest.mark.parametrize("day", range(1, DAYS_IMPLEMENTED + 1))
+def test_day(day: int, part: int):
     m = AOC_MODULES[day]
     path = get_input_path(day)
-    assert m.solver01.solve(path) == 7
+    match part:
+        case 1:
+            solver = m.solver01
+        case 2:
+            solver = m.solver02
 
-
-def test_day01_part02():
-    day = 1
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver02.solve(path) == 5
-
-
-def test_day02_part01():
-    day = 2
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver01.solve(path) == 150
-
-
-def test_day02_part02():
-    day = 2
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver02.solve(path) == 900
-
-
-def test_day03_part01():
-    day = 3
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver01.solve(path) == 198
-
-
-def test_day03_part02():
-    day = 3
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver02.solve(path) == 230
-
-
-def test_day06_part01():
-    day = 6
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver01.solve(path) == 5934
-
-
-def test_day06_part02():
-    day = 6
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    assert m.solver02.solve(path) == 26984457539
+    assert solver.solve(path) == SOLUTIONS[(day, part)]  # type: ignore

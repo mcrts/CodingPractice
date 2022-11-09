@@ -1,19 +1,15 @@
 from collections import Counter
 from functools import reduce
 import itertools as it
-import os
 import re
 import numpy as np
-from pathlib import Path
 from typing import Iterator, Self, Tuple
-
 from pydantic import BaseModel
 
-from aoc2021.utils import stream_from_text
+from aoc2021.utils import Solver, input_path
 
-DIR_PATH = os.path.dirname(__file__)
-INPATH = Path(DIR_PATH) / "input.txt"
-DAY = "05"
+
+INPATH = input_path(5)
 
 RE_PARSER = r"^(?P<x1>\d+),(?P<y1>\d+)\s->\s(?P<x2>\d+),(?P<y2>\d+)$"
 
@@ -69,9 +65,8 @@ def parse_input(instream: Iterator[str]) -> Iterator[Tuple[Position, Position]]:
     return stream
 
 
-def solve_part1(instream: Iterator[str]) -> int:
-    stream = parse_input(instream)
-    positions = filter(lambda p: Position.are_horizontaly_aligned(p[0], p[1]), stream)
+def solve_part1(instream: Iterator[Tuple[Position, Position]]) -> int:
+    positions = filter(lambda p: Position.are_horizontaly_aligned(p[0], p[1]), instream)
     positions = it.starmap(Position.inbetween_positions, positions)
     positions = reduce(list.__add__, positions)
     counter = Counter(positions)
@@ -79,23 +74,26 @@ def solve_part1(instream: Iterator[str]) -> int:
     return len(counter2.keys())
 
 
-def solve_part2(instream: Iterator[str]) -> int:
-    stream = parse_input(instream)
-    positions = filter(lambda p: Position.are_aligned(p[0], p[1]), stream)
+def solve_part2(instream: Iterator[Tuple[Position, Position]]) -> int:
+    positions = filter(lambda p: Position.are_aligned(p[0], p[1]), instream)
     positions = it.starmap(Position.inbetween_positions, positions)
     positions = reduce(list.__add__, positions)
     counter = Counter(positions)
     counter2 = Counter({k: v for k, v in counter.items() if v >= 2})
     return len(counter2.keys())
+
+
+solver01 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part1,  # type: ignore
+)
+
+solver02 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part2,  # type: ignore
+)
 
 
 def main():
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part01 : {solve_part1(stream)}",
-    )
-
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part02 : {solve_part2(stream)}",
-    )
+    print("Day 05 - Part01 :", solver01.solve(INPATH))
+    print("Day 05 - Part02 :", solver02.solve(INPATH))

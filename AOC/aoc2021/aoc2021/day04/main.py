@@ -1,15 +1,11 @@
-import os
 import itertools as it
-from pathlib import Path
-from typing import Generator, Iterable, Iterator, Sequence, Tuple, Self
-
+from typing import Iterator, Sequence, Tuple, Self
 from pydantic import BaseModel
 
-from aoc2021.utils import stream_from_text
+from aoc2021.utils import Solver, input_path
 
-DIR_PATH = os.path.dirname(__file__)
-INPATH = Path(DIR_PATH) / "input.txt"
-DAY = "04"
+
+INPATH = input_path(4)
 
 
 class BingoBoard(BaseModel):
@@ -67,9 +63,8 @@ def parse_input(instream: Iterator[str]) -> Tuple[Iterator[int], Sequence[BingoB
     return draw, boards
 
 
-def solve_part1(instream: Iterator[str]) -> int:
-    draws, boards = parse_input(instream)
-
+def solve_part1(parsed_input: Tuple[Iterator[int], Sequence[BingoBoard]]) -> int:
+    draws, boards = parsed_input
     for d in draws:
         boards = [b.apply_draw(d) for b in boards]
         wins = [b.win() for b in boards]
@@ -80,9 +75,8 @@ def solve_part1(instream: Iterator[str]) -> int:
     return 0
 
 
-def solve_part2(instream: Iterator[str]) -> int:
-    draws, boards = parse_input(instream)
-
+def solve_part2(parsed_input: Tuple[Iterator[int], Sequence[BingoBoard]]) -> int:
+    draws, boards = parsed_input
     for d in draws:
         boards = [b.apply_draw(d) for b in boards]
         newboards = [b for b in boards if not b.win()]
@@ -95,13 +89,17 @@ def solve_part2(instream: Iterator[str]) -> int:
     return 0
 
 
-def main():
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part01 : {solve_part1(stream)}",
-    )
+solver01 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part1,  # type: ignore
+)
 
-    stream = stream_from_text(INPATH)
-    print(
-        f"Day {DAY} - Part02 : {solve_part2(stream)}",
-    )
+solver02 = Solver(
+    parser=parse_input,  # type: ignore
+    solver=solve_part2,  # type: ignore
+)
+
+
+def main():
+    print("Day 04 - Part01 :", solver01.solve(INPATH))
+    print("Day 04 - Part02 :", solver02.solve(INPATH))

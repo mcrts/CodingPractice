@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
-from typing import Iterator, Any, Sequence, Tuple
-import itertools as it
+from typing import Iterator, Sequence, Tuple
 from functools import cache
 
 from aoc2021.utils import Solver

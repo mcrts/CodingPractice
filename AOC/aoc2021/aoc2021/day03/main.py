@@ -1,9 +1,7 @@
 from collections import Counter
 import functools
-import os
 import itertools as it
-from pathlib import Path
-from typing import Callable, Iterable, Sequence, Tuple
+from typing import Callable, Iterable, Sequence
 
 from aoc2021.utils import T, input_path, Solver
 

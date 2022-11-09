@@ -1,7 +1,6 @@
 from collections import namedtuple
 import itertools as it
 from typing import Iterable, Self
-
 from pydantic import BaseModel, parse_obj_as
 from enum import Enum
 
