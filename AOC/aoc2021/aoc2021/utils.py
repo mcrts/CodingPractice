@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
-import itertools as it
-from typing import Callable, Iterable, Iterator, TypeVar, Tuple
+from typing import Callable, Iterator, TypeVar
 
 from pydantic import BaseModel
 

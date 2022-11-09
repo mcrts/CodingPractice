@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
+from typing import Tuple
 
 import pytest
-from aoc2021.main import AOC_MODULES, DAYS_IMPLEMENTED
+from aoc2021.main import SOLVERS
 
 DIR_PATH = os.path.dirname(__file__)
 
@@ -27,15 +28,8 @@ SOLUTIONS = {
 }
 
 
-@pytest.mark.parametrize("part", (1, 2))
-@pytest.mark.parametrize("day", range(1, DAYS_IMPLEMENTED + 1))
-def test_day(day: int, part: int):
-    m = AOC_MODULES[day]
-    path = get_input_path(day)
-    match part:
-        case 1:
-            solver = m.solver01
-        case 2:
-            solver = m.solver02
-
-    assert solver.solve(path) == SOLUTIONS[(day, part)]  # type: ignore
+@pytest.mark.parametrize("solver_key", SOLVERS.keys())
+def test_day(solver_key: Tuple[int, int]):
+    solver = SOLVERS[solver_key]  # type: ignore
+    path = get_input_path(solver_key[0])
+    assert solver.solve(path) == SOLUTIONS[solver_key]  # type: ignore

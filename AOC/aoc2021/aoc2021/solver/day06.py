@@ -1,13 +1,9 @@
-import os
-from pathlib import Path
 from typing import Iterator, Sequence, Tuple
 from functools import cache
 
-from aoc2021.utils import Solver
+from aoc2021.utils import Solver, input_path
 
-DIR_PATH = os.path.dirname(__file__)
-INPATH = Path(DIR_PATH) / "input.txt"
-DAY = "06"
+INPATH = input_path(6)
 
 
 def parser(instream: Iterator[str]) -> list[int]:
@@ -64,5 +60,5 @@ solver02 = Solver(
 
 
 def main():
-    print(f"Day {DAY} - Part01 :", solver01.solve(INPATH))
-    print(f"Day {DAY} - Part02 :", solver02.solve(INPATH))
+    print("Day 06 - Part01 :", solver01.solve(INPATH))
+    print("Day 06 - Part02 :", solver02.solve(INPATH))

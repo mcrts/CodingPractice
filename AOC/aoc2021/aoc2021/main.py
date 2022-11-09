@@ -1,4 +1,3 @@
-import importlib
 import sys
 import os
 import shutil
@@ -6,13 +5,11 @@ from pathlib import Path
 
 import subprocess
 
+from aoc2021.solver import SOLVERS
+from aoc2021.utils import input_path
+
 DIR_PATH = Path(os.path.dirname(__file__))
 TEMPLATE_DIR = DIR_PATH / "template" / "day"
-DAYS_IMPLEMENTED = 6
-AOC_MODULES = {
-    i: importlib.import_module(f"aoc2021.day{i:02d}.main")
-    for i in range(1, DAYS_IMPLEMENTED + 1)
-}
 
 
 def boiler(args=sys.argv):
@@ -34,7 +31,8 @@ def boiler(args=sys.argv):
 
 def run(args=sys.argv):
     daynum = int(args[1])
-    m = AOC_MODULES[daynum]
-    inpath = m.INPATH
-    print(f"Day {daynum:02d} - Part01 :", m.solver01.solve(inpath))
-    print(f"Day {daynum:02d} - Part02 :", m.solver02.solve(inpath))
+    inpath = input_path(daynum)
+    solver01 = SOLVERS[(daynum, 1)]
+    solver02 = SOLVERS[(daynum, 2)]
+    print(f"Day {daynum:02d} - Part01 :", solver01.solve(inpath))
+    print(f"Day {daynum:02d} - Part02 :", solver02.solve(inpath))
