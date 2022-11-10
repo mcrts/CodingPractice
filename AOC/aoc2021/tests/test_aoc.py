@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from typing import Tuple
 
 import pytest
 from aoc2021.main import SOLVERS
@@ -25,13 +24,12 @@ SOLUTIONS = {
     (5, 2): 12,
     (6, 1): 5934,
     (6, 2): 26984457539,
+    (7, 1): 37,
+    (7, 2): 168,
 }
 
-DAYMAX = 6
 
-
-@pytest.mark.parametrize("part", (1, 2))
-@pytest.mark.parametrize("day", range(1, DAYMAX + 1))
+@pytest.mark.parametrize("day, part", SOLUTIONS.keys())
 def test_day(day: int, part: int):
     solver = SOLVERS[(day, part)]  # type: ignore
     path = get_input_path(day)
