@@ -27,9 +27,12 @@ SOLUTIONS = {
     (6, 2): 26984457539,
 }
 
+DAYMAX = 6
 
-@pytest.mark.parametrize("solver_key", SOLVERS.keys())
-def test_day(solver_key: Tuple[int, int]):
-    solver = SOLVERS[solver_key]  # type: ignore
-    path = get_input_path(solver_key[0])
-    assert solver.solve(path) == SOLUTIONS[solver_key]  # type: ignore
+
+@pytest.mark.parametrize("part", (1, 2))
+@pytest.mark.parametrize("day", range(1, DAYMAX + 1))
+def test_day(day: int, part: int):
+    solver = SOLVERS[(day, part)]  # type: ignore
+    path = get_input_path(day)
+    assert solver.solve(path) == SOLUTIONS[(day, part)]  # type: ignore

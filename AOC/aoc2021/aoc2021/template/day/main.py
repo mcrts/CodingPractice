@@ -3,11 +3,10 @@ from pathlib import Path
 from typing import Iterator, Any
 import itertools as it
 
-from aoc2021.utils import Solver
+from aoc2021.utils import Solver, input_path
 
-DIR_PATH = os.path.dirname(__file__)
-INPATH = Path(DIR_PATH) / "input.txt"
-DAY = "01"
+
+INPATH = input_path({{DAY}})
 
 
 def parser_part01(instream: Iterator[str]) -> Any:
@@ -38,5 +37,5 @@ solver02 = Solver(
 
 
 def main():
-    print(f"Day {DAY} - Part01 :", solver01.solve(INPATH))
-    print(f"Day {DAY} - Part02 :", solver02.solve(INPATH))
+    print("Day {{DAY}} - Part01 :", solver01.solve(INPATH))
+    print("Day {{DAY}} - Part02 :", solver02.solve(INPATH))
