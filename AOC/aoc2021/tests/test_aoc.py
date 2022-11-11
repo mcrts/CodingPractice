@@ -26,7 +26,24 @@ SOLUTIONS = {
     (6, 2): 26984457539,
     (7, 1): 37,
     (7, 2): 168,
+    (8, 1): None,
+    (8, 2): None,
 }
+
+
+@pytest.mark.parametrize("day", set([k[0] for k in SOLUTIONS.keys()]))
+def test_testfile_exists(day):
+    assert get_input_path(day).exists(), f"test file for day{day:02d} does not exist."
+
+
+@pytest.mark.parametrize("day", set([k[0] for k in SOLUTIONS.keys()]))
+def test_testfile_has_content(day):
+    if get_input_path(day).exists():
+        with open(get_input_path(day), "r") as f:
+            content = f.read()
+    else:
+        content = ""
+    assert content, f"test file for day{day:02d} is empty."
 
 
 @pytest.mark.parametrize("day, part", SOLUTIONS.keys())

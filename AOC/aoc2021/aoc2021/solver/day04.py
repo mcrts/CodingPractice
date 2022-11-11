@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from aoc2021.utils import Solver, input_path
 
 
-INPATH = input_path(4)
+DAY = 4
+INPATH = input_path(DAY)
 
 
 class BingoBoard(BaseModel):
@@ -101,5 +102,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 04 - Part01 :", solver01.solve(INPATH))
-    print("Day 04 - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))

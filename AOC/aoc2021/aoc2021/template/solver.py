@@ -1,12 +1,10 @@
-import os
-from pathlib import Path
 from typing import Iterator, Any
 import itertools as it
 
 from aoc2021.utils import Solver, input_path
 
-
-INPATH = input_path({{DAY}})
+DAY = $DAY
+INPATH = input_path(DAY)
 
 
 def parser_part01(instream: Iterator[str]) -> Any:
@@ -35,7 +33,6 @@ solver02 = Solver(
     solver=solver_part02,  # type: ignore
 )
 
-
 def main():
-    print("Day {{DAY}} - Part01 :", solver01.solve(INPATH))
-    print("Day {{DAY}} - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))

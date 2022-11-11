@@ -6,7 +6,9 @@ from pydantic import BaseModel
 
 from aoc2021.utils import T, input_path, Solver
 
-INPATH = input_path(3)
+
+DAY = 3
+INPATH = input_path(DAY)
 
 
 def partition(pred, iterable):
@@ -110,5 +112,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 03 - Part01 :", solver01.solve(INPATH))
-    print("Day 03 - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))

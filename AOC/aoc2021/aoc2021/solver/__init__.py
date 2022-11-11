@@ -1,8 +1,19 @@
-from . import day01, day02, day03, day04, day05, day06, day07
+import importlib
+import os
+from pathlib import Path
 
-DAYS_IMPLEMENTED = 7
+DIR_PATH = Path(os.path.dirname(__file__))
+
+files = [f for f in os.listdir(DIR_PATH) if f.endswith(".py") and f.startswith("day")]
+DAYS_IMPLEMENTED = len(files)
+
+MODULES = {
+    k: importlib.import_module(f".", package=f"aoc2021.solver.day{k:02d}")
+    for k in range(1, DAYS_IMPLEMENTED + 1)
+}
+
 SOLVERS = {
-    (day, part): eval(f"day{day:02d}.solver{part:02d}")
-    for day in range(1, DAYS_IMPLEMENTED + 1)
+    (day, part): m.solver01 if part == 1 else m.solver02
+    for day, m in MODULES.items()
     for part in (1, 2)
 }

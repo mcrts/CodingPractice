@@ -6,7 +6,8 @@ from enum import Enum
 
 from aoc2021.utils import Solver, input_path
 
-INPATH = input_path(2)
+DAY = 2
+INPATH = input_path(DAY)
 
 
 class MotionEnm(str, Enum):
@@ -101,5 +102,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 02 - Part01 :", solver01.solve(INPATH))
-    print("Day 02 - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))

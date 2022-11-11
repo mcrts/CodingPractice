@@ -3,36 +3,35 @@ import os
 import shutil
 from pathlib import Path
 
-import subprocess
+from string import Template
 
-from aoc2021.solver import SOLVERS
+from aoc2021.solver import SOLVERS, MODULES
 from aoc2021.utils import input_path
 
 DIR_PATH = Path(os.path.dirname(__file__))
-TEMPLATE_DIR = DIR_PATH / "template" / "day"
+TEMPLATE_DIR = DIR_PATH / "template"
 
 
 def boiler(args=sys.argv):
-    daynum = int(args[1])
-    src_path = TEMPLATE_DIR
-    dst_path = DIR_PATH / f"day{daynum:02d}"
-    shutil.copytree(src_path, dst_path, dirs_exist_ok=False)
-    args = [
-        "sed",
-        "-i",
-        f"""s/DAY = "01"/DAY = "{daynum:02d}"/g""",
-        str(dst_path / "main.py"),
-    ]
-    subprocess.call(
-        args,
-        shell=False,
-    )
+    day = int(args[1])
+
+    inpath = input_path(day)
+    if not os.path.exists(inpath):
+        open(inpath, "w").close()
+
+    templatepath = TEMPLATE_DIR / "solver.py"
+    solverpath = DIR_PATH / "solver" / f"day{day:02d}.py"
+    if not os.path.exists(solverpath):
+        with open(templatepath, "r") as inf, open(solverpath, "w") as outf:
+            template = Template(inf.read())
+            outf.write(template.safe_substitute({"DAY": day}))
+
+    return sys.exit(0)
+
+    if not os.path.exists(solverpath):
+        open(solverpath, "w").close()
 
 
 def run(args=sys.argv):
-    daynum = int(args[1])
-    inpath = input_path(daynum)
-    solver01 = SOLVERS[(daynum, 1)]
-    solver02 = SOLVERS[(daynum, 2)]
-    print(f"Day {daynum:02d} - Part01 :", solver01.solve(inpath))
-    print(f"Day {daynum:02d} - Part02 :", solver02.solve(inpath))
+    day = int(args[1])
+    MODULES[day].main()

@@ -9,7 +9,8 @@ from pydantic import BaseModel
 from aoc2021.utils import Solver, input_path
 
 
-INPATH = input_path(5)
+DAY = 5
+INPATH = input_path(DAY)
 
 RE_PARSER = r"^(?P<x1>\d+),(?P<y1>\d+)\s->\s(?P<x2>\d+),(?P<y2>\d+)$"
 
@@ -95,5 +96,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 05 - Part01 :", solver01.solve(INPATH))
-    print("Day 05 - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))

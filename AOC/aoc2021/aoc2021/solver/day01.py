@@ -3,7 +3,8 @@ import itertools as it
 
 from aoc2021.utils import Solver, input_path, T
 
-INPATH = input_path(1)
+DAY = 1
+INPATH = input_path(DAY)
 
 
 def nwise(stream: Iterable[T], n) -> Iterator[Sequence[T]]:
@@ -36,5 +37,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 01 - Part01 :", solver01.solve(INPATH))
-    print("Day 01 - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))

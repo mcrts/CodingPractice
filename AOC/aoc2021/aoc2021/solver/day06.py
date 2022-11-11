@@ -3,7 +3,9 @@ from functools import cache
 
 from aoc2021.utils import Solver, input_path
 
-INPATH = input_path(6)
+
+DAY = 6
+INPATH = input_path(DAY)
 
 
 def parser(instream: Iterator[str]) -> list[int]:
@@ -60,5 +62,5 @@ solver02 = Solver(
 
 
 def main():
-    print("Day 06 - Part01 :", solver01.solve(INPATH))
-    print("Day 06 - Part02 :", solver02.solve(INPATH))
+    print(f"Day {DAY:02d} - Part01 :", solver01.solve(INPATH))
+    print(f"Day {DAY:02d} - Part02 :", solver02.solve(INPATH))
