@@ -1,4 +1,4 @@
-from typing import Iterator, Any
+from typing import Iterator, Any, Sequence, Tuple
 import itertools as it
 
 from aoc2021.utils import Solver, input_path
