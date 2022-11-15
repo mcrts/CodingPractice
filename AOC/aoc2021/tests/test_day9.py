@@ -1,4 +1,4 @@
-from aoc2021.solver.day09 import find_basin, Point
+from aoc2021.solver.day09 import find_basin, Point, Heatmap
 import numpy as np
 
 INPUT = np.vstack(
@@ -10,12 +10,9 @@ INPUT = np.vstack(
         [9, 8, 9, 9, 9, 6, 5, 6, 7, 8],
     ]
 )
+HEATMAP = INPUT.view(Heatmap)
 
 
 def test_find_bassin():
-    arr = INPUT
-    p = Point((0, 0), arr, arr[(0, 0)])
-    basin_point_sol = Point((1, 0), arr, arr[(1, 0)])
-    basin_value, basin_point = find_basin(p)
-    assert basin_point == basin_point_sol
-    assert basin_value == 3
+    p = Point((0, 0), HEATMAP, HEATMAP[(0, 0)])
+    assert find_basin(p) == (0, 1)

@@ -1,44 +1,70 @@
-from typing import Iterator, Any, Sequence, Tuple, TypeVar, NamedTuple
+from functools import reduce, cache
+from typing import Counter, Iterator, Any, Optional, Sequence, Tuple, NamedTuple
 import itertools as it
 import numpy as np
+from dataclasses import dataclass
 
 from aoc2021.utils import Solver, input_path
 
 DAY = 9
 INPATH = input_path(DAY)
 
+
+@dataclass(frozen=True)
+class Heatmap(np.ndarray):
+    pass
+
+
 Index = Tuple[int, int]
-Point = NamedTuple(
-    "Point", [("index", Index), ("heatmap", np.ndarray), ("height", int)]
-)
+Point = NamedTuple("Point", [("index", Index), ("heatmap", Heatmap), ("height", int)])
 
 
-def parser(instream: Iterator[Sequence[int]]) -> np.ndarray:
+def get_neighbours(p: Point) -> Sequence[Point]:
+    index_deltas = set([(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)]) - set(
+        [(0, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+    )
+    indexes = set(np.ndindex(p.heatmap.shape))
+    neighbours = ((p.index[0] + d[0], p.index[1] + d[1]) for d in index_deltas)
+    neighbours = (Point(i, p.heatmap, p.heatmap[i]) for i in neighbours if i in indexes)
+    return list(neighbours)
+
+
+@cache
+def is_low_point(p: Point) -> bool:
+    neighbours = get_neighbours(p)
+    relative_height = [(n.height - p.height) > 0 for n in neighbours]
+    return all(relative_height)
+
+
+@cache
+def find_basin(p: Point) -> Optional[Index]:
+    if p.height == 9:
+        return None
+    if is_low_point(p):
+        return p.index
+    else:
+        n = min(get_neighbours(p), key=lambda p: p.height)
+        return find_basin(n)
+
+
+def parser(instream: Iterator[Sequence[int]]) -> Heatmap:
     it_array = (np.array(s, dtype=int) for s in instream)
     arr = np.vstack(list(it_array))
-    return arr
+    heatmap = arr.view(Heatmap)
+    return heatmap
 
 
-def solver_part01(input_var: np.ndarray) -> int:
-    def is_low_point(x: int, others: Sequence[int]) -> bool:
-        return all(map(lambda i: i - x > 0, others))
-
-    def adjacency_generator(arr: np.ndarray) -> Iterator[Tuple[int, Sequence[int]]]:
-        index_deltas = set([(x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)]) - set(
-            [(0, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]
-        )
-        indexes = set(np.ndindex(arr.shape))
-        for index, x in np.ndenumerate(arr):
-            neighbours = ((index[0] + d[0], index[1] + d[1]) for d in index_deltas)
-            neighbours = (i for i in neighbours if i in indexes)
-            yield (x, [arr[n] for n in neighbours])
-
-    low_points = [e[0] + 1 for e in adjacency_generator(input_var) if is_low_point(*e)]
-    return sum(low_points)
+def solver_part01(heatmap: Heatmap) -> int:
+    points = (Point(i, heatmap, h) for i, h in np.ndenumerate(heatmap))
+    lowpoints = filter(is_low_point, points)
+    return sum([p.height + 1 for p in lowpoints])
 
 
-def solver_part02(input_var: Any) -> int:
-    return 0
+def solver_part02(heatmap: Heatmap) -> int:
+    points = (Point(i, heatmap, h) for i, h in np.ndenumerate(heatmap))
+    coloredmap = filter(lambda i: i is not None, map(find_basin, points))
+    counter = Counter(coloredmap)
+    return reduce(int.__mul__, map(lambda x: x[1], counter.most_common(3)))
 
 
 solver01 = Solver(
