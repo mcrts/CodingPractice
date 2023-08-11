@@ -23,6 +23,7 @@ fn parse_input<B: BufRead>(lines: io::Lines<B>) -> Vec<Elf> {
             },
         };
     }
+    elves.push(elve.clone());
     return elves
 }
 
@@ -37,9 +38,31 @@ fn find_maximum(elves: &Vec<Elf>) -> i32 {
     return *m;
 }
 
+fn find_top3(elves: &Vec<Elf>) -> i32 {
+    let mut v1: i32 = 0;
+    let mut v2: i32 = 0;
+    let mut v3: i32 = 0;
+    for elf in elves {
+        let v = elf.iter().sum();
+        if v > v1 {
+            v3 = v2;
+            v2 = v1;
+            v1 = v;
+        } else if v > v2 {
+            v3 = v2;
+            v2 = v;
+        } else if v > v3 {
+            v3 = v;
+        }
+    }
+    return v1 + v2 + v3;
+}
+
 pub fn main() {
     let lines = io::stdin().lock().lines();
     let elves = parse_input(lines);
     let calories = find_maximum(&elves);
+    let top3_calories = find_top3(&elves);
     println!("{:?}", calories);
+    println!("{:?}", top3_calories);
 }
