@@ -1,0 +1,16 @@
+from collections import namedtuple
+import sys
+import re
+import itertools as I
+import functools as F
+
+
+def part1():
+    return 0
+
+def part2():
+    return 0
+
+def main():
+    v = part1()
+    print(v)
