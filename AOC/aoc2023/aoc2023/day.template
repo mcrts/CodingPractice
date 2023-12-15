@@ -1,16 +1,22 @@
-from collections import namedtuple
 import sys
 import re
+
 import itertools as I
 import functools as F
+from collections import namedtuple
+from pprint import pprint
 
-
-def part1():
+def part1(pipe):
+    for l in pipe:
+        print(l.strip())
     return 0
 
-def part2():
+def part2(pipe):
+    for l in pipe:
+        print(l.strip())
     return 0
 
 def main():
-    v = part1()
-    print(v)
+    pipe1, pipe2 = I.tee(sys.stdin, 2)
+    print(f"Part 1: {part1(pipe1)}")
+    print(f"Part 2: {part2(pipe2)}")
