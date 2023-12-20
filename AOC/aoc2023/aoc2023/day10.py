@@ -126,26 +126,45 @@ def part2(graph, path):
     g = np.full_like(graph._grid, ".")
     for node in path.nodes:
         g[node.idx] = node.value
-
-
+    
     nrow, ncol = g.shape
+    path_indices = set([n.idx for n in path.nodes])
+
     for i in range(nrow):
-        inside = False
+        inside_flag = False
+        up_flag = False
+        down_flag = False
         for j in range(ncol):
             idx = (i, j)
             v = g[idx]
-            match v:
-                case b'.':
-                    if inside:
-                        c += 1
-                        g[idx] = "X"
-                case b'-':
+            is_border = (idx in path_indices)
+            match (is_border, v):
+                case (True, b'|'):
+                    up_flag = True
+                    down_flag = True
+                case (True, b'-'):
                     pass
+                case (True, b'F'):
+                    down_flag = not down_flag
+                case (True, b'J'):
+                    up_flag = not up_flag
+                case (True, b'L'):
+                    up_flag = not up_flag
+                case (True, b'7'):
+                    down_flag = not down_flag
                 case _:
-                    inside = not inside
-    
-    for i in range(nrow):
-        print(''.join(g[i].astype(str)))
+                    pass
+            
+            if up_flag and down_flag:
+                inside_flag =  not inside_flag
+                up_flag = False
+                down_flag = False
+
+            is_empty = (v == b'.')
+
+            if is_empty and inside_flag:
+                g[idx] = 1
+                c += 1
     return c
 
 def main():
