@@ -96,7 +96,7 @@ def parse_map(buffer):
     return RangeMap(tuple(d))
 
 def parser_part1(buffer):
-    seed_line = buffer.readline()
+    seed_line = next(buffer).strip()
     m = re.match(RE_SEED, seed_line)
     seeds = set(map(int, filter(bool, m['seeds'].split(' '))))
     
@@ -132,15 +132,15 @@ def parser_part1(buffer):
     rmap = F.reduce(RangeMap.merge, maps)
     return seeds, rmap
 
-def part1():
-    seeds, rmap = parser_part1(sys.stdin)
+def part1(buffer):
+    seeds, rmap = parser_part1(buffer)
     locations = []
     for seed in seeds:
         locations.append(rmap.get(seed))
     return min(locations)
 
 def parser_part2(buffer):
-    seed_line = buffer.readline()
+    seed_line = next(buffer).strip()
     m = re.match(RE_SEED, seed_line)
 
     seed_idx = list(map(int, filter(bool, m['seeds'].split(' '))))
@@ -180,8 +180,8 @@ def parser_part2(buffer):
     rmap = F.reduce(RangeMap.merge, maps)
     return seed_range, rmap
 
-def part2():
-    seed_range, rmap = parser_part2(sys.stdin)
+def part2(buffer):
+    seed_range, rmap = parser_part2(buffer)
     targets = sorted(rmap.ranges, key=lambda x: x.target)
 
     for t in targets:
@@ -190,7 +190,3 @@ def part2():
             b = min(r.source + r.size, t.source + t.size) 
             if a <= b:
                 return t.get(a)
-
-def main():
-    v = part2()
-    print(v)

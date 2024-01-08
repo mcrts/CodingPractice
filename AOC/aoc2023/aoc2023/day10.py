@@ -106,9 +106,9 @@ class Graph:
             else:
                 break
 
-def part1(pipe):
+def parse_graph(buffer):
     grid = []
-    for l in pipe:
+    for l in buffer:
         grid.append(list(l.strip()))
     g = Graph(np.array(grid, dtype='|S1'))
     s = g.start()
@@ -120,8 +120,13 @@ def part1(pipe):
         pass
     return g, p
 
+def part1(buffer):
+    _, path = parse_graph(buffer)
+    return len(path) // 2
 
-def part2(graph, path):
+
+def part2(buffer):
+    graph, path = parse_graph(buffer)
     c = 0
     g = np.full_like(graph._grid, ".")
     for node in path.nodes:
@@ -166,8 +171,3 @@ def part2(graph, path):
                 g[idx] = 1
                 c += 1
     return c
-
-def main():
-    graph, path = part1(sys.stdin)
-    print(f"Part 1: {len(path) // 2}")
-    print(f"Part 2: {part2(graph, path)}")

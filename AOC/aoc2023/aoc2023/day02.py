@@ -43,9 +43,9 @@ class Game(namedtuple('Game', ['gid', 'turns'])):
     def power(self):
         return F.reduce(int.__mul__, self.min_cubes())
 
-def part1():
+def part1(buffer):
     r = 0
-    for l in sys.stdin:
+    for l in buffer:
         game_str, l = l.split(":", 1)
         gid = int(re.match(RE_GAME, game_str).group('id'))
         turns = [Turn.from_string(s) for s in l.split(';')]
@@ -54,16 +54,12 @@ def part1():
             r += game.gid
     return r
 
-def part2():
+def part2(buffer):
     r = 0
-    for l in sys.stdin:
+    for l in buffer:
         game_str, l = l.split(":", 1)
         gid = int(re.match(RE_GAME, game_str).group('id'))
         turns = [Turn.from_string(s) for s in l.split(';')]
         game = Game(gid, turns)
         r += game.power()
     return r
-
-def main():
-    v = part2()
-    print(v)

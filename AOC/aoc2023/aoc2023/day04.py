@@ -23,18 +23,18 @@ class Scratchcard(Scratchcard):
             return 0
 
 
-def part1():
+def part1(buffer):
     v = 0
-    for l in sys.stdin:
+    for l in buffer:
         l = l.strip()
         card = Scratchcard.from_string(l)
         v += card.score()
     return v
 
-def part2():
+def part2(buffer):
     nmatch = []
     copies = []
-    for l in sys.stdin:
+    for l in buffer:
         l = l.strip()
         card = Scratchcard.from_string(l)
         nmatch.append(card.nmatch())
@@ -51,7 +51,3 @@ def part2():
             else:
                 copies[j] += c
     return sum(copies)
-
-def main():
-    v = part2()
-    print(v)

@@ -34,12 +34,12 @@ class Race(Race):
             x1 = M.floor(x1 - e)
         return x1 - x0 + 1
 
-def part1():
-    ltime = sys.stdin.readline()
+def part1(buffer):
+    ltime = next(buffer).strip()
     m = re.match(RE_TIME, ltime.strip())
     times = map(int, re.findall(RE_DIGIT, m.group('times')))
 
-    ldistance = sys.stdin.readline()
+    ldistance = next(buffer).strip()
     m = re.match(RE_DISTANCE, ldistance.strip())
     distances = map(int, re.findall(RE_DIGIT, m.group('distances')))
     
@@ -47,18 +47,14 @@ def part1():
     score = F.reduce(int.__mul__, scores)
     return score
 
-def part2():
-    ltime = sys.stdin.readline()
+def part2(buffer):
+    ltime = next(buffer).strip()
     m = re.match(RE_TIME, ltime.strip())
     t = int(m.group('times').strip().replace(" ", ""))
 
-    ldistance = sys.stdin.readline()
+    ldistance = next(buffer).strip()
     m = re.match(RE_DISTANCE, ldistance.strip())
     d = int(m.group('distances').strip().replace(" ", ""))
     
     r = Race(t, d)
     return r.solve()
-
-def main():
-    v = part2()
-    print(v)

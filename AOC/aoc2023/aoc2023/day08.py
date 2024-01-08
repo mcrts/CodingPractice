@@ -10,11 +10,11 @@ from pprint import pprint
 RE_NODE = r"^(?P<src>\w{3}) = \((?P<l>\w{3}), (?P<r>\w{3})\)$"
 Node = namedtuple("Node", ["src", 'l', 'r'])
 
-def part1(pipe):
-    instructions = I.cycle(next(pipe).strip())
+def part1(buffer):
+    instructions = I.cycle(next(buffer).strip())
     graph = dict()
-    next(pipe)
-    for l in pipe:
+    next(buffer)
+    for l in buffer:
         m = re.match(RE_NODE, l)
         n = Node(**m.groupdict())
         graph[n.src] = n
@@ -31,7 +31,7 @@ def part1(pipe):
                 n = graph[graph[n.src].r]
     return c
 
-def part2(pipe):
+def part2(buffer):
     def move(graph, instructions, node):
         c = 0
         N = len(instructions)
@@ -50,10 +50,10 @@ def part2(pipe):
     def lcm(a, b):
         return abs(a*b) // math.gcd(a, b)
         
-    instructions = next(pipe).strip()
+    instructions = next(buffer).strip()
     graph = dict()
-    next(pipe)
-    for l in pipe:
+    next(buffer)
+    for l in buffer:
         m = re.match(RE_NODE, l)
         n = Node(**m.groupdict())
         graph[n.src] = n
@@ -63,15 +63,3 @@ def part2(pipe):
     c = F.reduce(lcm, steps)
 
     return c
-
-def main():
-    pipe1, pipe2 = I.tee(sys.stdin, 2)
-    print(f"Part 1: {part1(pipe1)}")
-    print(f"Part 2: {part2(pipe2)}")
-
-12083
-20513
-16579
-14893
-22199
-13207

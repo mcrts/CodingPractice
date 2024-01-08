@@ -30,10 +30,10 @@ def neighbours(index):
     i, j = index
     return {(i + di, j + dj) for di, dj in DELTAS}
 
-def part1():
+def part1(buffer):
     symbols = set()
     parts = dict()
-    for i, l in enumerate(sys.stdin):
+    for i, l in enumerate(buffer):
         l = l.strip()
         for m in re.finditer(RE_PATTERN1, l):
             match m.lastgroup:
@@ -48,10 +48,10 @@ def part1():
     selected_parts = set(map(parts.get, symbols.intersection(parts.keys())))
     return sum(map(lambda p: p.value, selected_parts))
 
-def part2():
+def part2(buffer):
     gears = set()
     parts = dict()
-    for i, l in enumerate(sys.stdin):
+    for i, l in enumerate(buffer):
         l = l.strip()
         for m in re.finditer(RE_PATTERN2, l):
             match m.lastgroup:
@@ -74,7 +74,3 @@ def part2():
         ]
     ))
     return sum(map(lambda g: g[0].value * g[1].value, selected_gears))
-
-def main():
-    v = part2()
-    print(v)

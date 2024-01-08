@@ -24,22 +24,17 @@ def rec_solve2(arr):
         d = rec_solve2(diffs)
     return arr[0] - d
 
-def part1(pipe):
+def part1(buffer):
     v = 0
-    for l in pipe:
+    for l in buffer:
         numbers = list(map(int, l.strip().split(" ")))
         v += rec_solve1(numbers)
     return v
 
-def part2(pipe):
+def part2(buffer):
     v = 0
-    for l in pipe:
+    for l in buffer:
         numbers = list(map(int, l.strip().split(" ")))
         d = rec_solve2(numbers)
         v += d
     return v
-
-def main():
-    pipe1, pipe2 = I.tee(sys.stdin, 2)
-    print(f"Part 1: {part1(pipe1)}")
-    print(f"Part 2: {part2(pipe2)}")
