@@ -4,7 +4,7 @@ import importlib
 import itertools as I
 
 parser = argparse.ArgumentParser()
-parser.add_argument('day', type=int, choices=range(1, 11))
+parser.add_argument('day', type=int, choices=range(1, 26))
 parser.add_argument('--part1', action="store_true")
 parser.add_argument('--part2', action="store_true")
 
