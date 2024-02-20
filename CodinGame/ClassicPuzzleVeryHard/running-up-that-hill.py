@@ -63,11 +63,125 @@ def crack(plain, cipher):
             continue
     return n, k, k_1
 
+@dataclass
+class Modular:
+    mod: int
+
+    def extended_gcd(self, a: int, b: int):
+        if (a == 0):
+            x = 0
+            y = 1
+            return b, (x, y)
+        
+        gcd, (x1, y1) = self.extended_gcd(b % a, a)
+        x, y = y1 - (b // a) * x1, x1
+        return gcd, (x, y)
+
+
+    def add(self, a: int, b: int) -> int:
+        return (a + b) % self.mod
+    
+    def sub(self, a: int, b: int) -> int:
+        return (a - b) % self.mod
+
+    def mul(self, a: int, b: int) -> int:
+        return (a * b) % self.mod
+    
+    def div(self, a: int, b: int) -> int:
+        gcd = math.gcd(a, b) 
+        if gcd != 1:
+            a1 = a // gcd
+            b1 = b // gcd
+            try:
+                q = (a1 * self.inv(b1)) % self.mod
+            except ValueError as e:
+                raise ValueError(f"{a1} is not divisible by {b1} modulo {self.mod}. Reduced from {a} / {b}") from e
+        else:
+            try:
+                q = (a * self.inv(b)) % self.mod
+            except ValueError as e:
+                raise ValueError(f"{a} is not divisible by {b} modulo {self.mod}.") from e
+
+        return q
+    
+    def is_coprime(self, a: int) -> bool:
+        return math.gcd(self.mod, a) == 1
+    
+    def coprimes(self) -> Set[int]:
+        return set(filter(self.is_coprime, range(self.mod)))
+             
+    def inv(self, a: int) -> int:
+        if not self.is_coprime(a):
+            raise ValueError(f"{a} is not a coprime of {self.mod}, {a} has not multiplicative inverse modulo {self.mod}.")
+        
+        _, (x, _) = self.extended_gcd(a, self.mod)
+        return (x % self.mod + self.mod) % self.mod
+
+@dataclass
+class ModularMatrixAlgebra:
+    mod: int
+
+    def pivot(self, a, i):
+        p = a[i, i]
+        modulo = Modular(self.mod)
+        vdiv = np.vectorize(lambda x: modulo.div(x, p))
+        a[i] = vdiv(a[i])
+        for j in range(a.shape[0]):
+            if j != i:
+                a[j] = modulo.add(a[j],  -1 * a[j, i] * a[i])
+        return a
+    
+    def reduce(self, a, b):
+        k = a.shape[0]
+        m = np.hstack((a, b))
+        debug(m)
+        for i in range(k):
+            m = self.pivot(m, i)
+
+        return np.hsplit(m, k)[1]
+
+    def inverse(self, a):
+        i = np.eye(a.shape[0], dtype=int)
+        return self.reduce(a, i)
+    
+    def inverse(self, a):
+        d = int(round(np.linalg.det(a))) % self.mod
+        
+        return self.reduce(a, i)
+    
+    def crack(self, plain, cipher):
+        n_values = find_n(len(plain))
+        n = None
+        k0 = None
+        k1 = None
+        for n in n_values:
+            try:
+                p = encode(plain, n)
+                c = encode(cipher, n)
+                a = 1
+                b = 2
+                p = p[[a, b]]
+                c = c[[a, b]]
+                k0 = self.reduce(p, c)
+                k1 = self.reduce(c.T, p.T)
+                break
+            except ValueError as e:
+                debug(e)
+                continue
+        return n, k0, k1
+
 M = 45
 cipher = input()
 clear = input()
 clear_me = input()
 cipher_me = input()
+
+mma = ModularMatrixAlgebra(M)
+n, k0, k1 = mma.crack(clear, cipher)
+print(n)
+print(k0)
+print(k1)
+sys.exit(0)
 
 n, key, key_1 = crack(clear, cipher)
 print(n)
