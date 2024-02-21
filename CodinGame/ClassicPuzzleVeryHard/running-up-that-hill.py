@@ -1,15 +1,86 @@
-from typing import Set
-import numpy as np
-from dataclasses import dataclass
-import math
-from pprint import pprint as pp
 from enum import IntEnum
 import sys
-import itertools as it
-
 
 def debug(*args):
     print(*args, file=sys.stderr, flush=True)
+
+import numpy as np
+import math as M
+import itertools as I
+
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, y, x = egcd(b % a, a)
+        return (g, x - (b // a) * y, y)
+        
+class MatrixArithmetic:
+    @classmethod
+    def det(cls, m: np.matrix) -> int:
+        return int(round(np.linalg.det(m)))
+
+    @classmethod
+    def cofactors(cls, m: np.matrix) -> np.matrix:
+        cof = np.zeros_like(m)
+        for (i, j), _ in np.ndenumerate(m):
+            a = np.matrix(np.delete(np.delete(m, i, 0), j, 1))
+            sgn = 1 if ((i+j) % 2 == 0) else -1
+            cof[(i, j)] = sgn * cls.det(a)
+        return cof
+
+    @classmethod
+    def adjugate(cls, m: np.matrix) -> np.matrix:
+        return cls.cofactors(m).T
+                
+class MatrixModularArithmetic:
+    def __init__(self, mod: int):
+        self.mod = mod
+
+    def multiplicative_inverse(self, a: int) -> int:
+        g, x, y = egcd(a % self.mod, self.mod)
+        if g != 1:
+            raise ValueError(f"{a} has no multiplicative inverse modulo {self.mod}.")
+        return x % self.mod
+
+    def is_invertible(self, m: np.matrix) -> bool:
+        det = MatrixArithmetic.det(m)
+        g = M.gcd(det, self.mod)
+        return g == 1
+
+    def inverse(self, m: np.matrix) -> np.matrix:
+        if not self.is_invertible(m):
+            raise ValueError(f"matrix is not invertible modulo {self.mod}.")
+
+        det = MatrixArithmetic.det(m)
+        det_inv = self.multiplicative_inverse(det)
+        adj = MatrixArithmetic.adjugate(m)
+        return np.matrix((det_inv * adj) % self.mod)
+
+class OCMLSS:
+    def __init__(self, mod: int):
+        self.mod = mod
+
+    def solve(self, a, b):
+        mma = MatrixModularArithmetic(self.mod)
+        l = a.shape[0]
+        s = a.shape[1]
+        for idx in I.combinations(range(l), s):
+            a0 = a[np.ix_(idx)]
+            b0 = b[np.ix_(idx)]
+            if mma.is_invertible(a0):
+                a0_inv = mma.inverse(a0)
+                k = np.matmul(a0_inv, b0).T % self.mod
+                k_inv = mma.inverse(k)
+
+                s0 = np.matmul(k, a.T) % self.mod
+                s1 = b.T
+                if np.equal(s0, s1).all():
+                    return k, k_inv
+                else:
+                    continue
+        raise ValueError("System is not solvable.")
+
 
 LEXICON = IntEnum("Lexicon", [
     "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
@@ -19,177 +90,59 @@ LEXICON = IntEnum("Lexicon", [
     "+", "-", ".", "/", ":"
 ])
 
-def encode(p, n):
-    p = map(lambda s: LEXICON[s].value - 1, p)
-    groups = np.array(list(zip(*(iter(p),) * n)))
-    return groups
+def encode(p: str) -> np.array:
+    p = np.array([LEXICON[s].value - 1 for s in p])
+    return p
 
+def group(m: List[int], n: int) -> np.array:
+    mat = m.reshape((-1, n), order='C')
+    return mat
+ 
 def decode(p):
-    return "".join(map(lambda i: LEXICON(i + 1).name, p.flatten()))
+    return "".join(map(lambda i: LEXICON(i + 1).name, p.flatten('F')))
 
-def encrypt(p, key):
-    return (np.matmul(key.T, p.T) % M).T
-
-def _bruteforce(p, c, mod, n, i):
-    values = it.product(*[list(range(mod)) for _ in range(n)])
-    
-    for k in values:
-        key = np.array(k)
-        if (encrypt(p, key) == c[:, i]).all():
-            return key
-
-def bruteforce(p, c, mod, n):
-    return np.array([_bruteforce(p, c, mod, n, i) for i in range(n)]).T
-        
-def find_n(size):
-    upper = math.floor(math.sqrt(size))
-    lower = 2
-    values = set()
-    for n in range(lower, upper + 1):
-        if size % n == 0:
-            values.add(n)
-    return values
-        
-def crack(plain, cipher):
-    n_values = find_n(len(plain))
-    for n in n_values:
-        try:
-            p = encode(plain, n)
-            c = encode(cipher, n)
-            k = bruteforce(p, c, M, n)
-            k_1 = bruteforce(c, p, M, n)
-        except ValueError as e:
-            debug(e)
-            continue
-    return n, k, k_1
-
-@dataclass
-class Modular:
-    mod: int
-
-    def extended_gcd(self, a: int, b: int):
-        if (a == 0):
-            x = 0
-            y = 1
-            return b, (x, y)
-        
-        gcd, (x1, y1) = self.extended_gcd(b % a, a)
-        x, y = y1 - (b // a) * x1, x1
-        return gcd, (x, y)
+def encrypt(m: np.array, k: np.matrix, mod: int):
+    return np.array(np.matmul(k, m.T) % mod)
 
 
-    def add(self, a: int, b: int) -> int:
-        return (a + b) % self.mod
-    
-    def sub(self, a: int, b: int) -> int:
-        return (a - b) % self.mod
+def do_crack(plaintext, cipher, sizes, mod):
+    solver = OCMLSS(mod)
 
-    def mul(self, a: int, b: int) -> int:
-        return (a * b) % self.mod
-    
-    def div(self, a: int, b: int) -> int:
-        gcd = math.gcd(a, b) 
-        if gcd != 1:
-            a1 = a // gcd
-            b1 = b // gcd
+    for s in range(2, 7):
+        if all([x % s == 0 for x in sizes]):
             try:
-                q = (a1 * self.inv(b1)) % self.mod
+                p_enc = group(encode(plaintext), s)
+                c_enc = group(encode(cipher), s)
+                k, k_inv = solver.solve(p_enc, c_enc)
+                return k, k_inv
             except ValueError as e:
-                raise ValueError(f"{a1} is not divisible by {b1} modulo {self.mod}. Reduced from {a} / {b}") from e
-        else:
-            try:
-                q = (a * self.inv(b)) % self.mod
-            except ValueError as e:
-                raise ValueError(f"{a} is not divisible by {b} modulo {self.mod}.") from e
-
-        return q
-    
-    def is_coprime(self, a: int) -> bool:
-        return math.gcd(self.mod, a) == 1
-    
-    def coprimes(self) -> Set[int]:
-        return set(filter(self.is_coprime, range(self.mod)))
-             
-    def inv(self, a: int) -> int:
-        if not self.is_coprime(a):
-            raise ValueError(f"{a} is not a coprime of {self.mod}, {a} has not multiplicative inverse modulo {self.mod}.")
-        
-        _, (x, _) = self.extended_gcd(a, self.mod)
-        return (x % self.mod + self.mod) % self.mod
-
-@dataclass
-class ModularMatrixAlgebra:
-    mod: int
-
-    def pivot(self, a, i):
-        p = a[i, i]
-        modulo = Modular(self.mod)
-        vdiv = np.vectorize(lambda x: modulo.div(x, p))
-        a[i] = vdiv(a[i])
-        for j in range(a.shape[0]):
-            if j != i:
-                a[j] = modulo.add(a[j],  -1 * a[j, i] * a[i])
-        return a
-    
-    def reduce(self, a, b):
-        k = a.shape[0]
-        m = np.hstack((a, b))
-        debug(m)
-        for i in range(k):
-            m = self.pivot(m, i)
-
-        return np.hsplit(m, k)[1]
-
-    def inverse(self, a):
-        i = np.eye(a.shape[0], dtype=int)
-        return self.reduce(a, i)
-    
-    def inverse(self, a):
-        d = int(round(np.linalg.det(a))) % self.mod
-        
-        return self.reduce(a, i)
-    
-    def crack(self, plain, cipher):
-        n_values = find_n(len(plain))
-        n = None
-        k0 = None
-        k1 = None
-        for n in n_values:
-            try:
-                p = encode(plain, n)
-                c = encode(cipher, n)
-                a = 1
-                b = 2
-                p = p[[a, b]]
-                c = c[[a, b]]
-                k0 = self.reduce(p, c)
-                k1 = self.reduce(c.T, p.T)
-                break
-            except ValueError as e:
-                debug(e)
+                debug(e, s)
                 continue
-        return n, k0, k1
+        else:
+            continue
+    return None, None
 
-M = 45
+def do_decipher(ciphertext, key, mod):
+    n = key.shape[0]
+    c_enc = group(encode(ciphertext), n)
+    p_enc = encrypt(c_enc, key, mod)
+    return decode(p_enc)
+    
+def do_cipher(plaintext, key, mod):
+    n = key.shape[0]
+    p_enc = group(encode(plaintext), n)
+    c_enc = encrypt(p_enc, key, mod)
+    return decode(c_enc)
+
 cipher = input()
 clear = input()
 clear_me = input()
 cipher_me = input()
 
-mma = ModularMatrixAlgebra(M)
-n, k0, k1 = mma.crack(clear, cipher)
-print(n)
-print(k0)
-print(k1)
-sys.exit(0)
+sizes = len(cipher), len(clear), len(clear_me), len(cipher_me)
+k, k_inv = do_crack(clear, cipher, sizes, 45)
+p_me = do_decipher(clear_me, k_inv, 45)
+c_me = do_cipher(cipher_me, k, 45)
 
-n, key, key_1 = crack(clear, cipher)
-print(n)
-print(key)
-print(key_1)
-
-cleared = decode(encrypt(encode(clear_me, n), key_1))
-ciphered = decode(encrypt(encode(cipher_me, n), key))
-
-print(cleared)
-print(ciphered)
+print(p_me)
+print(c_me)
