@@ -93,8 +93,35 @@ class BruteForceSolver:
                 return -1
 
 
+class DPSolver:
+    @staticmethod
+    def regexp(report):
+        g = report.groups[0]
+        l1 = len(report.groups[1:]) + sum(report.groups[1:]) - 1
+        reg = rf"^{RE_T}*" + "%s{%s}" % (RE_Tp, g) + "%s%s{%s,}" % (RE_Td, RE_T, l1)
+        return reg
+
+    @classmethod
+    def match(cls, report):
+        regexp = cls.regexp(report)
+        m = re.match(regexp, report.bits)
+        return m
+
+    def subproblem_iterator(self, report):
+        reg = self.regexp(report)
+        for i in range(len(report.bits)):
+            bits = report.bits[i:]
+            if re.match(reg, bits):
+                yield i
+
+    def solve(self, report: Report) -> int:
+        for i in self.subproblem_iterator(report):
+            print(i, report.bits[i:])
+        return 0
+
+
 def part1(pipe):
-    solver = BruteForceSolver()
+    solver = DPSolver()
     count = 0
     for l in pipe:
         r = Report.from_string(l.strip())
