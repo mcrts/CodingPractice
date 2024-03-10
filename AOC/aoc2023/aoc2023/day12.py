@@ -8,6 +8,10 @@ from pprint import pprint
 from typing import NamedTuple, Tuple
 from collections import Counter
 
+RE_T = r"[#\.\?]"
+RE_Tp = r"[#\?]"
+RE_Td = r"[\.\?]"
+
 class Report(NamedTuple):
     bits: str
     groups: Tuple[int, ...]
@@ -18,93 +22,75 @@ class Report(NamedTuple):
         groups = tuple(map(int, groups.split(',')))
         return cls(bits, groups)
     
-    def verify(self):
-        c = Counter(self.bits)
-        k = sum(self.groups)
-        n = len(self.groups)
+    @classmethod
+    def from_folded(cls, s):
+        bits, groups = s.split(' ', 1)
+        groups = tuple(map(int, groups.split(',')))
 
-
-        if k + n - 1 > len(self.bits):
-            return False
-        if c["#"] > k:
-            return False
-        elif k > c["#"] + c["?"]:
-            return False
-        else:
-            return True
- 
-
+        bits_f = "?".join([bits] * 5)
+        groups_f = groups * 5
+        return cls(bits_f, groups_f)
+    
 class BruteForceSolver:
-    def process(self, report: Report) -> int:
-        #print("PROCESS | ", report)
+    @staticmethod
+    def regexp(report):
+        reg_start = rf"^{RE_Td}*"
+        reg_end = rf"{RE_Td}*$"
+        reg = rf"{RE_Td}+".join(["%s{%s}" % (RE_Tp, n) for n in report.groups])
+        return reg_start + reg + reg_end
+
+    @classmethod
+    def match(cls, report):
+        regexp = cls.regexp(report)
+        m = re.match(regexp, report.bits)
+        return m
+
+    def handle_basecase(self, report: Report) -> Tuple[bool, int]:
+        N = len(report.groups)
+        C = Counter(report.bits)
+        m = bool(self.match(report))
+
+        match m, N, C["#"]:
+            case False, _, _:
+                return True, 0 
+            case True, 0, 0:
+                return True, 1
+            case _:
+                return False, -1
+
+    def solve(self, report: Report) -> int:
+        cond, v = self.handle_basecase(report)
+        if cond:
+            return v
 
         h = report.bits[0]
-        k = report.groups[0]
-        match report.verify(), h:
-            case False, _:
-                #print("CASE INVALID | ", "->", 0)
-                return 0
-            case True, ".":
+        N = len(report.groups)
+        match h, N:
+            case ".", _ :
                 r = Report(report.bits[1:], report.groups)
-                #print("CASE . | ", "->", r)
                 return self.solve(r)
-            case True, "#":
-                b0 = report.bits[:k]
-                r0 = Report(b0, (k,))
-                if not r0.verify():
-                    #print("CASE # | ", r0, "->", 0)
-                    return 0
-                
-                g1 = report.groups[1:]
-                if len(g1) == 0:
-                    b1 = report.bits[k:]
-                    r1 = Report(b1, g1)
-                else:
-                    if report.bits[k] == "#":
-                        #print("CASE # | ", (r0, report.bits[k:]), "->", 0)
-                        return 0
-
-                    b1 = report.bits[k+1:]
-                    r1 = Report(b1, g1)
-
-                #print("CASE # | ", "->", r1)
-                return self.solve(r1)
-            case True, "?":
+            case "?", _ :
                 r0 = Report(report.bits[1:], report.groups)
                 r1 = Report("#" + report.bits[1:], report.groups)
-                #print("CASE ? | ", "->", r0, r1)
                 return self.solve(r0) + self.solve(r1)
-
-        
-    def solve(self, report: Report) -> int:
-        #print("SOLVE | ", report)
-
-        N = len(report.groups)
-        L = len(report.bits)
-        C = Counter(report.bits)
-
-
-        match N, L, C['#']:
-            case 0, 0, _:
-                #print("CASE 0 0 _ | ", report, "->", 1)
-                return 1
-            case 0, l, 0:
-                #print("CASE 0 l 0 | ", report, "->", 1)
-                return 1
-            case 0, l, p,:
-                #print("CASE 0 l p | ", report, "->", 0)
-                return 0
-            case n, 0, _:
-                #print("CASE n 0 _ | ", report, "->", 0)
-                return 0
-            case n, l, _:
-                #print("CASE n l _ | ", report)
-                return self.process(report)
-            case _:
-                #print(N, L, C)
-                return -999
-
-            
+            case "#", 1 :
+                k = report.groups[0]
+                b0 = report.bits[:k]
+                r0 = Report(b0, (k,))
+                g1 = report.groups[1:]
+                b1 = report.bits[k:]
+                r1 = Report(b1, g1)
+                return self.solve(r1)
+            case '#', n :
+                k = report.groups[0]
+                b0 = report.bits[:k]
+                r0 = Report(b0, (k,))
+                g1 = report.groups[1:]
+                b1 = report.bits[k+1:]
+                r1 = Report(b1, g1)
+                return self.solve(r1)
+            case _ :
+                return -1
 
 
 def part1(pipe):
@@ -112,12 +98,21 @@ def part1(pipe):
     count = 0
     for l in pipe:
         r = Report.from_string(l.strip())
+        print("SOLVING", r)
         c = solver.solve(r)
-        print(r, c)
+        print("COUNT", c)
         count += c
+        print()
     return count
 
 def part2(pipe):
+    solver = BruteForceSolver()
+    count = 0
     for l in pipe:
-        print(l.strip())
+        r = Report.from_folded(l.strip())
+        print("SOLVING", r)
+        c = solver.solve(r)
+        print("COUNT", c)
+        count += c
+        print()
     return 0
