@@ -146,6 +146,67 @@ class DPSolver:
             r = Report(b, report.groups[1:])
             subproblems.append(self.solve(r))
         return sum(subproblems)
+    
+
+class DPSolver2:
+    @staticmethod
+    def regexp(report):
+        reg_start = rf"^{RE_Td}*"
+        reg_end = rf"{RE_Td}*$"
+        reg = rf"{RE_Td}+".join(["%s{%s}" % (RE_Tp, n) for n in report.groups])
+        return reg_start + reg + reg_end
+
+    @classmethod
+    def match(cls, report):
+        regexp = cls.regexp(report)
+        m = re.match(regexp, report.bits)
+        return m
+
+    @staticmethod
+    def regexp_sub(report, i):
+        reg_start = r"^%s{%s}" % (RE_Td, i)
+        reg_end = rf"{RE_Td}*$"
+        reg = rf"{RE_Td}+".join(["%s{%s}" % (RE_Tp, n) for n in report.groups])
+        return reg_start + reg + reg_end
+    
+    def split_problem(self, report, i, j):
+        k = report.groups[j]
+        report_left = Report(report.bits[:i-1], report.groups[:j])
+        report_middle = Report(report.bits[i:i+k], report.groups[j:j+1])
+        report_right = Report(report.bits[i+k+1:], report.groups[j+1:])
+        return report_left, report.bits[i-1], report_middle, report.bits[i+k], report_right
+
+    def subproblem_iterator(self, report):
+        j = len(report.groups) // 2
+        left_size = sum(report.groups[:j]) + len(report.groups[:j])
+        right_size = sum(report.groups[j+1:]) + len(report.groups[j+1:])
+
+        for i in range(left_size, len(report.bits) - right_size):
+            rl, s0, rm, s1, rr = self.split_problem(report, i, j)
+            if s0 != '#' and s1 != '#' and self.match(rl) and self.match(rm) and self.match(rr):
+                yield rl, rm, rr, (i, j)
+
+    def handle_basecase(self, report: Report) -> Tuple[bool, int]:
+        N = len(report.groups)
+        C = Counter(report.bits)
+        m = bool(self.match(report))
+
+        match m, N, C["#"]:
+            case False, _, _:
+                return True, 0 
+            case True, 0, 0:
+                return True, 1
+            case _:
+                return False, -1
+
+    def solve(self, report: Report) -> int:
+        cond, v = self.handle_basecase(report)
+        if cond:
+            return v
+        
+        for rl, rm, rr, i in self.subproblem_iterator(report):
+            print(rl, rm, rr, i)
+        return 0
 
 
 def part1(pipe):
@@ -162,10 +223,11 @@ def part1(pipe):
     return count
 
 def part2(pipe):
-    solver = DPSolver()
+    solver = DPSolver2()
     count = 0
     for l in pipe:
         r = Report.from_folded(l.strip())
+        r = Report.from_string(l.strip())
         print("SOLVING", r)
         c = solver.solve(r)
         print("COUNT", c)
