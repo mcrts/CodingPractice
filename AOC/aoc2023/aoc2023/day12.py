@@ -96,10 +96,10 @@ class BruteForceSolver:
 class DPSolver:
     @staticmethod
     def regexp(report):
-        g = report.groups[0]
-        l1 = len(report.groups[1:]) + sum(report.groups[1:]) - 1
-        reg = rf"^{RE_T}*" + "%s{%s}" % (RE_Tp, g) + "%s%s{%s,}" % (RE_Td, RE_T, l1)
-        return reg
+        reg_start = rf"^{RE_Td}*"
+        reg_end = rf"{RE_Td}*$"
+        reg = rf"{RE_Td}+".join(["%s{%s}" % (RE_Tp, n) for n in report.groups])
+        return reg_start + reg + reg_end
 
     @classmethod
     def match(cls, report):
@@ -107,20 +107,49 @@ class DPSolver:
         m = re.match(regexp, report.bits)
         return m
 
-    def subproblem_iterator(self, report):
-        reg = self.regexp(report)
-        for i in range(len(report.bits)):
-            bits = report.bits[i:]
-            if re.match(reg, bits):
-                yield i
+    @staticmethod
+    def regexp_sub(report, i):
+        reg_start = r"^%s{%s}" % (RE_Td, i)
+        reg_end = rf"{RE_Td}*$"
+        reg = rf"{RE_Td}+".join(["%s{%s}" % (RE_Tp, n) for n in report.groups])
+        return reg_start + reg + reg_end
 
+    def subproblem_iterator(self, report):
+        for i in range(len(report.bits)):
+            reg = self.regexp_sub(report, i)
+            if re.match(reg, report.bits):
+                yield (i, reg)
+
+    def handle_basecase(self, report: Report) -> Tuple[bool, int]:
+        N = len(report.groups)
+        C = Counter(report.bits)
+        m = bool(self.match(report))
+
+        match m, N, C["#"]:
+            case False, _, _:
+                return True, 0 
+            case True, 0, 0:
+                return True, 1
+            case _:
+                return False, -1
+
+    @F.lru_cache()
     def solve(self, report: Report) -> int:
-        for i in self.subproblem_iterator(report):
-            print(i, report.bits[i:])
-        return 0
+        cond, v = self.handle_basecase(report)
+        if cond:
+            return v
+        
+        subproblems = []
+        for (i, reg) in self.subproblem_iterator(report):
+            g = report.groups[0]
+            b = report.bits[i+g+1:]
+            r = Report(b, report.groups[1:])
+            subproblems.append(self.solve(r))
+        return sum(subproblems)
 
 
 def part1(pipe):
+    solver = BruteForceSolver()
     solver = DPSolver()
     count = 0
     for l in pipe:
@@ -133,7 +162,7 @@ def part1(pipe):
     return count
 
 def part2(pipe):
-    solver = BruteForceSolver()
+    solver = DPSolver()
     count = 0
     for l in pipe:
         r = Report.from_folded(l.strip())
@@ -142,4 +171,4 @@ def part2(pipe):
         print("COUNT", c)
         count += c
         print()
-    return 0
+    return count
