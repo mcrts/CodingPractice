@@ -15,3 +15,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 day01 = 'aoc2023.day01:main'
+day02 = 'aoc2023.day02:main'
