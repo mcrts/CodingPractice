@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+jupyterlab = "^4.0.9"
+numpy = "^1.26.2"
 
 
 [build-system]
@@ -14,4 +16,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-day01 = 'aoc2023.day01:main'
+aoc2023 = 'aoc2023.cli:main'
