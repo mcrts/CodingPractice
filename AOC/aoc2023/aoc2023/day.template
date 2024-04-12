@@ -15,8 +15,3 @@ def part2(pipe):
     for l in pipe:
         print(l.strip())
     return 0
-
-def main():
-    pipe1, pipe2 = I.tee(sys.stdin, 2)
-    print(f"Part 1: {part1(pipe1)}")
-    print(f"Part 2: {part2(pipe2)}")
