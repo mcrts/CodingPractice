@@ -16,13 +16,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-day01 = 'aoc2023.day01:main'
-day02 = 'aoc2023.day02:main'
-day03 = 'aoc2023.day03:main'
-day04 = 'aoc2023.day04:main'
-day05 = 'aoc2023.day05:main'
-day06 = 'aoc2023.day06:main'
-day07 = 'aoc2023.day07:main'
-day08 = 'aoc2023.day08:main'
-day09 = 'aoc2023.day09:main'
-day10 = 'aoc2023.day10:main'
+aoc2023 = 'aoc2023.cli:main'

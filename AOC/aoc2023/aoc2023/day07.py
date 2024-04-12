@@ -81,9 +81,9 @@ class Hand(Hand):
             v = HandType.HIGH_CARD
         return (v, self.cards)
             
-def part1():
+def part1(buffer):
     hands = []
-    for l in sys.stdin:
+    for l in buffer:
         l_cards, bet = l.strip().split(" ", 2)
         cards = [Card.from_char(c) for c in l_cards]
         hands.append(Hand(cards, int(bet)))
@@ -196,16 +196,12 @@ class Hand2(Hand2):
         return (v, self.cards)
 
 
-def part2():
+def part2(buffer):
     hands = []
-    for l in sys.stdin:
+    for l in buffer:
         l_cards, bet = l.strip().split(" ", 2)
         cards = [Card2.from_char(c) for c in l_cards]
         hands.append(Hand2(cards, int(bet)))
     ranked = sorted(hands, key=Hand2.value)
     score = sum([(r+1) * h.bet for r, h in enumerate(ranked)])
     return score
-
-def main():
-    v = part2()
-    print(v)
