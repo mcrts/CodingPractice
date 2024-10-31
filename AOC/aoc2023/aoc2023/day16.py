@@ -190,6 +190,8 @@ def part2(pipe):
     starts.extend([Node(i, 0, Direction.RIGHT) for i in range(0, xmax)])
 
     g = build_graph2(grid, starts)
+    print(list(nx.simple_cycles(g)))
+    return 0
 
     frontier = set([Node.OutsideNode()])
     property_trail = dict()
