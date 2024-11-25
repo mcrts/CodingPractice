@@ -55,7 +55,7 @@ class Geometric:
         else:
             t = ((a.x - c.x) * delta - (a.y - c.y) * gamma) / denom
             u = -(alpha * (a.y - c.y) - beta * (a.x - c.x)) / denom
-            return (0 <= t <= 1) and (0 <= u <= 1)
+            return (0 < t <= 1) and (0 < u <= 1)
 
 
 class Segment(NamedTuple):
@@ -69,44 +69,22 @@ class Segment(NamedTuple):
     def intersects(self, other) -> bool:
         return self._intersects(self, other)
 
-    def points(self) -> set[Point]:
-        points = set()
-        d = (self.p1.x - self.p0.x, self.p1.y - self.p0.y)
-        return points
-
 
 class Polygon(NamedTuple):
-    points: List[Point]
+    points: set[Point]
     segments: List[Segment]
-
-    @classmethod
-    def fromSegments(cls, segments: List[Segment]):
-        points = []
-        points.append(segments[0].p0)
-        for s in segments:
-            points.append(s.p1)
-        return cls(points=points, segments=segments)
 
     def bounding_box(self) -> Tuple[int, int, int, int]:
         xs = [p.x for p in self.points]
         ys = [p.y for p in self.points]
         return min(xs), max(xs), min(ys), max(ys)
 
-    def border_points(self) -> set[Point]:
-        points = set()
-        for s in self.segments:
-            points = points | s.points()
-        return points
-
     def is_in(self, p: Point) -> bool:
         if p in self.points:
             return True
         else:
-            l = Segment(Point(-1.3333, -1.6666), p)
-            a = list(s.intersects(l) for s in self.segments)
-            print(a)
-            count = sum(a)
-            print(p, count)
+            l = Segment(Point(p.x, -1), p)
+            count = sum(s.intersects(l) for s in self.segments)
             return (count % 2) == 1
 
 
@@ -127,13 +105,11 @@ def part1(pipe):
         dugged = dugged | set(positions)
         p0 = p1
 
-    polygon = Polygon.fromSegments(segments)
+    polygon = Polygon(points=dugged, segments=segments)
     x0, x1, y0, y1 = polygon.bounding_box()
     arr = [[polygon.is_in(Point(x, y)) for y in range(0, y1 + 1)] for x in range(0, x1 + 1)]
     grid = np.array(arr)
-    pprint(grid)
-    pprint(grid.shape)
-    return 0
+    return grid.sum()
 
 
 def part2(pipe):
