@@ -61,7 +61,8 @@ def part02(pipe: Iterator[str]):
     for l in pipe:
         update = list(map(int, l.strip().split(",")))
         if not check_update(rules, update):
-            update = reorder(rules, update)
+            while not check_update(rules, update):
+                update = reorder(rules, update)
             m = len(update) // 2
             count += update[m]
     return count
