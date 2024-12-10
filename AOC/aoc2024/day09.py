@@ -1,3 +1,4 @@
+import functools as F
 from collections import namedtuple
 from enum import IntEnum, auto
 from pprint import pprint
@@ -46,54 +47,51 @@ def part1(pipe: Iterable[str]) -> int:
     return count
 
 
-class BlockKind(IntEnum):
-    File = auto()
-    Free = auto()
-
-
-Block = namedtuple("Block", ["kind", "blockid", "len", "offset"])
-
-
-def map_disk(report: Iterable[int]) -> Iterable[Block]:
-    blocks = []
-
+def expand2(report: Iterable[int]) -> list[Tuple[str, int]]:
+    blockid = 0
+    expanded_report = []
     is_file = True
-    offset = 0
-    block_id = 0
     for i in report:
         if is_file:
-            block = Block(BlockKind.File, block_id, i, offset)
-            blocks.append(block)
-            block_id += 1
-            offset += i
+            expanded_report.extend([(str(blockid), i)] * i)
+            blockid += 1
         else:
-            block = Block(BlockKind.Free, -1, i, offset)
-            blocks.append(block)
-            offset += i
+            expanded_report.extend([(".", i)] * i)
         is_file = not is_file
-    return blocks
+    return expanded_report
 
 
-def move(blocks: Iterable[Block], t: Block):
-    free_blocks = [
-        (i, b)
-        for i, b in enumerate(blocks)
-        if b.len <= t.len and b.kind == BlockKind.Free and b.offset < t.offset
-    ]
-    if free_blocks:
-        i, free_block = free_blocks[0]
-        new_t = Block(BlockKind.File, t.block_id, t.len, free_block.offset)
-        blocks[i] = new_t
+def compress(report: list[Tuple[str, int]]) -> list[str]:
+    r = list(report)
+    i = 0
+    j = len(r)
+
+    while j > 0:
+        bid, length = r[j - 1]
+        if bid != ".":
+            free_offsets = [
+                idx
+                for idx, (b, l) in enumerate(report)
+                if b == "." and l >= length and idx < j - length
+            ]
+            if free_offsets:
+                i = free_offsets[0]
+                s0 = r[:i]
+                s1 = r[i : i + length]
+                s2 = r[i + length : j - length]
+                s3 = r[j - length : j]
+                s4 = r[j:]
+                r = s0 + s3 + s2 + s1 + s4
+
+    return r
 
 
 def part2(pipe: Iterable[str]) -> int:
     report = list(map(int, next(pipe).strip()))
-    blocks = map_disk(report)
+    report = expand2(report)
 
-    new_blocks = list(blocks)
-
-    for b in blocks[::-1]:
-        if b.kind == BlockKind.File:
-            move(new_blocks, b)
+    # pprint(report)
+    report = compress(report)
+    pprint(report)
 
     return 0
