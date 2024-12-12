@@ -7,6 +7,7 @@ from pprint import pprint
 from typing import Iterable, Tuple
 
 
+@F.lru_cache()
 def update_once(v: str) -> Tuple[str, ...]:
     match v, len(v) % 2 == 0:
         case "0", _:
@@ -23,6 +24,7 @@ def update_once(v: str) -> Tuple[str, ...]:
             return (str(int(v) * 2024),)
 
 
+@F.lru_cache()
 def update_once(v: int) -> Tuple[int, ...]:
     n = len(str(v))
     match v, n % 2 == 0:
@@ -37,6 +39,18 @@ def update_once(v: int) -> Tuple[int, ...]:
             return (v * 2024,)
 
 
+def count(v: int, n: int) -> int:
+    if n == 0:
+        return 1
+    elif n > 0:
+        arr = update_once(v)
+        return count_array(arr, n - 1)
+
+
+def count_array(arr: list[int], n: int) -> int:
+    return sum([count(a, n) for a in arr])
+
+
 def part1(pipe: Iterable[str]) -> int:
     arr = list(map(int, next(pipe).strip().split(" ")))
     for _ in range(25):
@@ -45,4 +59,5 @@ def part1(pipe: Iterable[str]) -> int:
 
 
 def part2(pipe: Iterable[str]) -> int:
-    return 0
+    arr = list(map(int, next(pipe).strip().split(" ")))
+    return count_array(arr, 75)
