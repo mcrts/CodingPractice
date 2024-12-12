@@ -1,13 +1,12 @@
 import functools as F
 import itertools as I
 import math as M
-from collections import namedtuple
+from collections import Counter, namedtuple
 from enum import IntEnum, auto
 from pprint import pprint
 from typing import Iterable, Tuple
 
 
-@F.lru_cache()
 def update_once(v: str) -> Tuple[str, ...]:
     match v, len(v) % 2 == 0:
         case "0", _:
@@ -24,7 +23,6 @@ def update_once(v: str) -> Tuple[str, ...]:
             return (str(int(v) * 2024),)
 
 
-@F.lru_cache()
 def update_once(v: int) -> Tuple[int, ...]:
     n = len(str(v))
     match v, n % 2 == 0:
@@ -58,6 +56,27 @@ def part1(pipe: Iterable[str]) -> int:
     return len(arr)
 
 
+def counter_update_once(counter: Counter) -> Counter:
+    newcounter = Counter()
+    for k, v in counter.items():
+        n = len(str(k))
+        match k, n % 2 == 0:
+            case 0, _:
+                newcounter[1] += v
+            case _, True:
+                m = n // 2
+                a = k // 10**m
+                b = k % 10**m
+                newcounter[a] += v
+                newcounter[b] += v
+            case _:
+                newcounter[k * 2024] += v
+    return newcounter
+
+
 def part2(pipe: Iterable[str]) -> int:
-    arr = list(map(int, next(pipe).strip().split(" ")))
-    return count_array(arr, 75)
+    arr = Counter(map(int, next(pipe).strip().split(" ")))
+    for _ in range(75):
+        arr = counter_update_once(arr)
+    c = sum(v for v in arr.values())
+    return c
