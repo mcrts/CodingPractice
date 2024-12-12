@@ -5,7 +5,7 @@ from pprint import pprint
 from typing import Iterable, Tuple
 
 
-def expand(report: Iterable[int]) -> Iterable[str]:
+def expand(report: Iterable[int]) -> list[str]:
     blockid = 0
     expanded_report = []
     is_file = True
@@ -47,51 +47,53 @@ def part1(pipe: Iterable[str]) -> int:
     return count
 
 
-def expand2(report: Iterable[int]) -> list[Tuple[str, int]]:
-    blockid = 0
-    expanded_report = []
-    is_file = True
-    for i in report:
-        if is_file:
-            expanded_report.extend([(str(blockid), i)] * i)
-            blockid += 1
-        else:
-            expanded_report.extend([(".", i)] * i)
-        is_file = not is_file
-    return expanded_report
+from collections import namedtuple
+
+Empty = namedtuple("Empty", [])
+Buffering = namedtuple("Buffering", ["key", "size"])
 
 
-def compress(report: list[Tuple[str, int]]) -> list[str]:
-    r = list(report)
-    i = 0
-    j = len(r)
+def move(report: list[str], idx: int, buffer: Buffering):
+    subreport = report[0:idx]
 
-    while j > 0:
-        bid, length = r[j - 1]
-        if bid != ".":
-            free_offsets = [
-                idx
-                for idx, (b, l) in enumerate(report)
-                if b == "." and l >= length and idx < j - length
-            ]
-            if free_offsets:
-                i = free_offsets[0]
-                s0 = r[:i]
-                s1 = r[i : i + length]
-                s2 = r[i + length : j - length]
-                s3 = r[j - length : j]
-                s4 = r[j:]
-                r = s0 + s3 + s2 + s1 + s4
-
-    return r
+    groups = (subreport[i : i + buffer.size] for i in range(len(subreport) - buffer.size + 1))
+    groups = (i for i, g in enumerate(groups) if "".join(g) == "." * buffer.size)
+    groups = list(groups)
+    if groups:
+        new_idx = groups[0]
+        for i in range(buffer.size):
+            report[new_idx + i] = buffer.key
+            report[idx + i] = "."
 
 
 def part2(pipe: Iterable[str]) -> int:
     report = list(map(int, next(pipe).strip()))
-    report = expand2(report)
+    report = expand(report)
 
-    # pprint(report)
-    report = compress(report)
-    pprint(report)
+    new_report = list(report)
+    state = Empty()
+    j = len(report) - 1
+    while j >= 0:
+        match state, report[j]:
+            case Empty(), ".":
+                j -= 1
+            case Empty(), k:
+                state = Buffering(key=k, size=1)
+                j -= 1
+            case Buffering(key=k, size=s), ".":
+                move(new_report, j + 1, state)
+                state = Empty()
+                j -= 1
+            case Buffering(key=k, size=s), v:
+                if k == v:
+                    state = Buffering(key=k, size=s + 1)
+                else:
+                    move(new_report, j + 1, state)
+                    state = Buffering(key=v, size=1)
+                j -= 1
 
-    return 0
+    count = 0
+    for i, v in enumerate(new_report):
+        if v != ".":
+            count += i * int(v)
+    return count
