@@ -65,13 +65,3 @@ def part02(pipe: Iterator[str]):
             flag = (d0 in ("MAS", "SAM")) and (d1 in ("MAS", "SAM"))
             count += flag
     return count
-
-
-def main():
-    p1, p2 = I.tee(sys.stdin, 2)
-    print(f"Part01 | {part01(p1)}")
-    print(f"Part02 | {part02(p2)}")
-
-
-if __name__ == "__main__":
-    main()
