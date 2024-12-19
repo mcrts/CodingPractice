@@ -34,9 +34,9 @@ def main():
     module = importlib.import_module(f"day{args.day:0>2}")
     pipe1, pipe2 = I.tee(args.input.open("r").readlines(), 2)
     if args.part1:
-        print(f"Day{args.day:0>2} Part 1 |", module.part1(pipe1))
+        print(f"Day{args.day:0>2} Part 1 |", module.part01(pipe1))
     if args.part2:
-        print(f"Day{args.day:0>2} Part 2 |", module.part2(pipe2))
+        print(f"Day{args.day:0>2} Part 2 |", module.part02(pipe2))
 
 
 if __name__ == "__main__":
