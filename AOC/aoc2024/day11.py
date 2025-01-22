@@ -49,7 +49,7 @@ def count_array(arr: list[int], n: int) -> int:
     return sum([count(a, n) for a in arr])
 
 
-def part1(pipe: Iterable[str]) -> int:
+def part01(pipe: Iterable[str]) -> int:
     arr = list(map(int, next(pipe).strip().split(" ")))
     for _ in range(25):
         arr = list(I.chain.from_iterable([update_once(n) for n in arr]))
@@ -74,7 +74,7 @@ def counter_update_once(counter: Counter) -> Counter:
     return newcounter
 
 
-def part2(pipe: Iterable[str]) -> int:
+def part02(pipe: Iterable[str]) -> int:
     arr = Counter(map(int, next(pipe).strip().split(" ")))
     for _ in range(75):
         arr = counter_update_once(arr)

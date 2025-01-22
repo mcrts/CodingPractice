@@ -73,7 +73,16 @@ class Computer:
         self.pointer += 2
 
     def run(self, program: Tuple[int, ...]) -> Tuple[int, ...]:
-        opcodes = [self.adv, self.bxl, self.bst, self.jnz, self.bxc, self.out, self.bdv, self.cdv]
+        opcodes = [
+            self.adv,
+            self.bxl,
+            self.bst,
+            self.jnz,
+            self.bxc,
+            self.out,
+            self.bdv,
+            self.cdv,
+        ]
         while self.pointer < len(program) - 1:
             instr, operand = program[self.pointer : self.pointer + 2]
             opcodes[instr](operand)
@@ -94,13 +103,13 @@ def parse_input(pipe: Iterator[str]) -> Tuple[Computer, Tuple[int, ...]]:
     return Computer(ra=registers["A"], rb=registers["B"], rc=registers["C"]), program
 
 
-def part1(pipe: Iterator[str]):
+def part01(pipe: Iterator[str]):
     computer, program = parse_input(pipe)
     output = computer.run(program)
     return ",".join(map(str, output))
 
 
-def part2(pipe: Iterator[str]):
+def part02(pipe: Iterator[str]):
     """SOLVE with DP, need a static computer state"""
     computer, program = parse_input(pipe)
     a = 0

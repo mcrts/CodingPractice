@@ -126,14 +126,14 @@ def lowest_score(g: Graph) -> int:
     raise ValueError("No path found")
 
 
-def part1(pipe: Iterator[str]):
+def part01(pipe: Iterator[str]):
     g = Graph.from_strings(pipe)
 
     cost = lowest_score(g)
     return cost
 
 
-def part2(pipe: Iterator[str]):
+def part02(pipe: Iterator[str]):
     g = Graph.from_strings(pipe)
 
     score = lowest_score(g)

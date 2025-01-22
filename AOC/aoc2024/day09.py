@@ -35,7 +35,7 @@ def compress_frag(report: Iterable[str]) -> Iterable[str]:
     return r
 
 
-def part1(pipe: Iterable[str]) -> int:
+def part01(pipe: Iterable[str]) -> int:
     report = list(map(int, next(pipe).strip()))
     report = expand(report)
     report = compress_frag(report)
@@ -56,7 +56,9 @@ Buffering = namedtuple("Buffering", ["key", "size"])
 def move(report: list[str], idx: int, buffer: Buffering):
     subreport = report[0:idx]
 
-    groups = (subreport[i : i + buffer.size] for i in range(len(subreport) - buffer.size + 1))
+    groups = (
+        subreport[i : i + buffer.size] for i in range(len(subreport) - buffer.size + 1)
+    )
     groups = (i for i, g in enumerate(groups) if "".join(g) == "." * buffer.size)
     groups = list(groups)
     if groups:
@@ -66,7 +68,7 @@ def move(report: list[str], idx: int, buffer: Buffering):
             report[idx + i] = "."
 
 
-def part2(pipe: Iterable[str]) -> int:
+def part02(pipe: Iterable[str]) -> int:
     report = list(map(int, next(pipe).strip()))
     report = expand(report)
 
