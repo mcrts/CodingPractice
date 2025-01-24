@@ -1,9 +1,22 @@
+import functools as F
 import itertools as I
 import re
 import sys
 from dataclasses import dataclass, field
+from itertools import tee
 from pprint import pprint
-from typing import Callable, ClassVar, Iterable, Iterator, List, Mapping, Tuple
+from types import GeneratorType
+from typing import (
+    Callable,
+    ClassVar,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    NamedTuple,
+    Self,
+    Tuple,
+)
 
 RE_REG = r"Register ([ABC]): (\d+)"
 RE_PROG = r"Program: (([0-8],{0,1})+)"
@@ -112,11 +125,21 @@ def part01(pipe: Iterator[str]):
 def part02(pipe: Iterator[str]):
     """SOLVE with DP, need a static computer state"""
     computer, program = parse_input(pipe)
-    a = 0
-    while True:
-        c = Computer(ra=a, rb=computer.rb, rc=computer.rc)
-        output = c.run(program)
-        if output == program:
+    rb = int(computer.rb)
+    rc = int(computer.rc)
+
+    for a in I.count(0, 1):
+        if a % 1000000 == 0:
+            print(a)
+        cs = ComputerState(program, a, rb, rc, 0)
+        if stream_compare(program, streaming_run(cs)):
+            print(program, tuple(streaming_run(cs)))
             return a
-        a += 1
+
+    """
+    for a in I.count(0, 1):
+        cs = ComputerState(program, a, rb, rc, 0)
+        if run(cs) == program:
+            return a
+    """
     return -1
