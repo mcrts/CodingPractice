@@ -43,14 +43,24 @@ def part01(pipe: Iterator[str]):
     g = make_graph(grid)
 
     start_nodes = [n for n, d in g.nodes(data=True) if d["h"] == 0]
+    end_nodes = [n for n, d in g.nodes(data=True) if d["h"] == 9]
     count = 0
-    for n in start_nodes:
-        descendants = nx.algorithms.descendants(g, n)
-        descendants = set(d for d in descendants if g.nodes[d]["h"] == 9)
-        count += len(descendants)
+    for s in start_nodes:
+        for t in end_nodes:
+            count += nx.algorithms.has_path(g, s, t)
 
     return count
 
 
 def part02(pipe: Iterator[str]):
-    return 0
+    grid = parse_input(pipe)
+    g = make_graph(grid)
+
+    start_nodes = [n for n, d in g.nodes(data=True) if d["h"] == 0]
+    end_nodes = [n for n, d in g.nodes(data=True) if d["h"] == 9]
+    count = 0
+    for s in start_nodes:
+        for t in end_nodes:
+            paths = nx.algorithms.all_simple_paths(g, s, t)
+            count += len(list(paths))
+    return count
