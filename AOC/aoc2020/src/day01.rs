@@ -10,7 +10,7 @@ where P: AsRef<Path>, {
     Ok(io::BufReader::new(file).lines())
 }
 
-fn solve(filepath: &String) -> i32 {
+fn part01(filepath: &String) -> i32 {
     let mut conjugate_set = HashSet::new();
 
     if let Ok(lines) = read_lines(filepath) {
@@ -29,10 +29,36 @@ fn solve(filepath: &String) -> i32 {
     panic!("Couldn't find a solution !");
 }
 
+fn part02(filepath: &String) -> i32 {
+    let mut account = HashSet::new();
+
+    if let Ok(lines) = read_lines(filepath) {
+        for line in lines.map_while(Result::ok) {
+            let d = line.parse::<i32>().unwrap();
+            account.insert(d);
+        }
+    } else {
+        panic!("Unable to read file {filepath}.");
+    }
+
+    for a in &account {
+        for b in &account {
+            if account.contains(&(2020 - a - b)) {
+                return a * b * (2020 - a - b);
+            }
+        }
+    }
+    
+    panic!("Couldn't find a solution !");
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filepath = &args[1];
 
-    let r = solve(filepath);
-    println!("Day01 | {r}");
+    let part01 = part01(filepath);
+    println!("Day01 Part01 | {part01}");
+
+    let part02 = part02(filepath);
+    println!("Day01 Part02 | {part02}");
 }
