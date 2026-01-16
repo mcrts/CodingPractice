@@ -10,7 +10,8 @@ requires-python = ">=3.12"
 dependencies = []
 
 [project.scripts]
-aoc2025 = "aoc2025:main"
+aoc2025 = "aoc2025.main:main"
+aoc2025-template = "aoc2025.main:template"
 
 [build-system]
 requires = ["uv_build>=0.9.7,<0.10.0"]
