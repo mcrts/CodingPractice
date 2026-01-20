@@ -2,9 +2,9 @@ import argparse
 import importlib
 import itertools as I
 import os
+import shutil
 import sys
 from pathlib import Path
-import shutil
 
 DIR_PATH = Path(os.path.dirname(os.path.realpath(__file__)))
 TEMPLATE = DIR_PATH / "day.template"
@@ -35,12 +35,13 @@ def main():
     else:
         args.input = FILES / f"day{args.day:0>2}.txt"
 
-    module = importlib.import_module(f"day{args.day:0>2}")
+    module = importlib.import_module(f"aoc2025.day{args.day:0>2}")
     pipe1, pipe2 = I.tee(args.input.open("r").readlines(), 2)
     if args.part1:
-        print(f"Day{args.day:0>2} Part 1 |", module.part01(pipe1))
+        print(f"Day{args.day:0>2} Part 1 |", module.part1(pipe1))
     if args.part2:
-        print(f"Day{args.day:0>2} Part 2 |", module.part02(pipe2))
+        print(f"Day{args.day:0>2} Part 2 |", module.part2(pipe2))
+
 
 def template():
     day = int(sys.argv[1])

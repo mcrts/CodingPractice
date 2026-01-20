@@ -7,7 +7,9 @@ authors = [
     { name = "Martin", email = "martin.courtois@protonmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pytest>=9.0.2",
+]
 
 [project.scripts]
 aoc2025 = "aoc2025.main:main"
