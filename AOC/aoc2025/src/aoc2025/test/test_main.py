@@ -22,7 +22,19 @@ class State(NamedTuple):
     solution: int
 
 
-states = [State(1, Part.PART1, 3), State(1, Part.PART2, 6)]
+states = []
+states.extend(
+    [
+        State(1, Part.PART1, 3),
+        State(2, Part.PART1, 1227775554),
+    ]
+)
+states.extend(
+    [
+        State(1, Part.PART2, 6),
+        State(2, Part.PART2, 4174379265),
+    ]
+)
 
 
 @pytest.mark.parametrize("s", states)
